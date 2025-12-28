@@ -1,0 +1,3 @@
+[submodule "comlibs"]
+	path = comlibs
+	url = git@github.com:u1tym/p91ComPython.git
