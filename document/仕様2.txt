@@ -1,0 +1,94 @@
+テストコード作成
+
+期待値と合っているかを画面に表示
+送信内容と受信内容を画面に表示
+
+補助処理１　ハッシュパス算出処理
+
+upass = パスワード
+magic = マジックナンバ
+combined = f"{upass}{magic}"
+hash_pass = format(zlib.crc32(combined.encode()) & 0xFFFFFFFF, '08x')
+
+補助処理２　ログイン処理
+引数 user、password
+戻り seq_number
+
+以下のプレ要求を送信し、プレ応答を受信する。
+
+プレ要求
+ホスト localhost
+ポート 8000
+メソッド POST
+URL /portal/auth/api/prerequest
+| No. | 項目名 | 型 | 説明 |
+|:---:|--- |--- | --- |
+| 1 | USER | string | 試行ユーザ名 |
+USER=user
+
+プレ応答
+| No. | 項目名 | 型 | 説明 |
+|:---:|--- |--- | --- |
+| 1 | RESULT | boolean | 結果(True/False) |
+| 2 | DETAIL | string | 結果がFalseだった場合に詳細情報を設定 |
+| 3 | MAGIC_NUMBER | number | マジックナンバ |
+
+続けて、以下の開錠要求を送信し、開錠応答を受信する。
+開錠要求
+ホスト localhost
+ポート 8000
+メソッド POST
+URL /portal/auth/api/unlock
+| No. | 項目名 | 型 | 説明 |
+|:---:|--- |--- | --- |
+| 1 | USER | string | 試行ユーザ名 |
+| 2 | MAGIC_NUMBER | number | マジックナンバ |
+| 3 | HASH_PASS | string | ハッシュ化パスワード |
+USER=user
+MAGIC_NUMBER=プレ応答のMAGIC_NUMBER
+HASH_PASS=password、MAGIC_NUMBERで、「補助処理１　ハッシュパス算出処理」を使って算出したハッシュパス
+
+開錠応答
+| No. | 項目名 | 型 | 説明 |
+|:---:|--- |--- | --- |
+| 1 | RESULT | boolean | 結果(True/False) |
+| 2 | DETAIL | string | 結果がFalseだった場合に詳細情報を設定 |
+| 3 | SEQ_NUMBER | number | シーケンス管理ナンバ |
+
+seq_number=SEQ_NUMBER
+
+
+以降、テスト内容
+
+１．機能一覧要求
+
+試行内容
+USER=xxxx
+
+期待値
+異常が返る
+
+２．機能一覧要求
+
+試行内容
+USER=admin
+
+期待値
+異常が返る
+
+３．機能一覧要求
+
+準備
+user=admin、password=adminで、「補助処理２　ログイン処理」を実施し、seq_numberを取得する。
+
+試行内容
+USER=admin
+SEQ_NUMBER=準備で取得したseq_number
+
+期待値
+正常が返る
+新しいSEQ_NUMBERを取得する
+機能一覧を取得する
+
+
+
