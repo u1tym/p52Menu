@@ -219,8 +219,19 @@ def test_feature_list(
 
 def main() -> None:
     """メイン処理"""
+    # ========================================================================
+    # 設定: ここでポート番号を変更できます
+    # ========================================================================
+    AUTH_HOST: str = "localhost"      # 認証APIのホスト
+    AUTH_PORT: int = 8000              # 認証APIのポート番号
+    MENU_HOST: str = "localhost"       # Menu APIのホスト
+    MENU_PORT: int = 8001              # Menu APIのポート番号
+    # ========================================================================
+    
     print("="*60)
     print("Menu API テスト開始")
+    print(f"認証API: {AUTH_HOST}:{AUTH_PORT}")
+    print(f"Menu API: {MENU_HOST}:{MENU_PORT}")
     print("="*60)
     
     # テスト1: USER=xxxx で異常が返ることを確認
@@ -231,7 +242,9 @@ def main() -> None:
         user="xxxx",
         seq_number=0,
         expected_result=False,
-        test_name="テスト1: USER=xxxx（異常期待）"
+        test_name="テスト1: USER=xxxx（異常期待）",
+        menu_host=MENU_HOST,
+        menu_port=MENU_PORT
     )
     
     # テスト2: USER=admin で異常が返ることを確認（SEQ_NUMBERなし）
@@ -242,7 +255,9 @@ def main() -> None:
         user="admin",
         seq_number=0,
         expected_result=False,
-        test_name="テスト2: USER=admin（異常期待）"
+        test_name="テスト2: USER=admin（異常期待）",
+        menu_host=MENU_HOST,
+        menu_port=MENU_PORT
     )
     
     # テスト3: USER=admin, SEQ_NUMBER=準備で取得したseq_number で正常が返ることを確認
@@ -252,7 +267,12 @@ def main() -> None:
     
     # 準備: ログイン処理
     print("\n【準備】ログイン処理を実施")
-    seq_number: Optional[int] = login(user="admin", password="admin")
+    seq_number: Optional[int] = login(
+        user="admin",
+        password="admin",
+        auth_host=AUTH_HOST,
+        auth_port=AUTH_PORT
+    )
     
     if seq_number is None:
         print("✗ ログインに失敗したため、テスト3をスキップします")
@@ -262,7 +282,9 @@ def main() -> None:
             user="admin",
             seq_number=seq_number,
             expected_result=True,
-            test_name="テスト3: USER=admin, SEQ_NUMBER=準備で取得（正常期待）"
+            test_name="テスト3: USER=admin, SEQ_NUMBER=準備で取得（正常期待）",
+            menu_host=MENU_HOST,
+            menu_port=MENU_PORT
         )
     
     # テスト結果のサマリー
